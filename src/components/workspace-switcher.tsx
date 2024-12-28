@@ -10,24 +10,16 @@ import {
   SelectValue,
 } from "./ui/select";
 import { WorkspaceAvatar } from "@/features/workspaces/components/workspace-avatar";
-import { useRouter, usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useCreateWorkspaceModal } from "@/features/workspaces/hooks/use-create-workspace-modal";
+import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 
 export const WorkspaceSwitcher = () => {
   const router = useRouter();
-  const pathname = usePathname(); 
-  const { data: workspaces } = useGetWorkspaces();
-  const [workspaceId, setWorkspaceId] = useState<string | undefined>(undefined);
-const { open } = useCreateWorkspaceModal()
+  const workspaceId = useWorkspaceId()
+  const { data: workspaces } = useGetWorkspaces();  
+  const { open } = useCreateWorkspaceModal()
   
-  useEffect(() => {
-    const idFromPath = pathname.split("/").pop(); 
-    if (idFromPath && idFromPath !== workspaceId) {
-      setWorkspaceId(idFromPath); 
-    }
-  }, [pathname, workspaceId]);
-
   const onSelect = (id: string) => {
     router.push(`/workspaces/${id}`);
   };
