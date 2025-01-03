@@ -51,7 +51,7 @@ const app = new Hono()
             }
 
             const query = [
-                Query.equal("worksapceId", workspaceId),
+                Query.equal("workspaceId", workspaceId),
                 Query.orderDesc("$createdAt"),
             ]
 
@@ -87,7 +87,7 @@ const app = new Hono()
             )
             
             const projectIds = tasks.documents.map((task) => task.projectId)
-            const assigneeIds = tasks.documents.map((task) => task.assigneedId)
+            const assigneeIds = tasks.documents.map((task) => task.assigneeId)
         
             const projects = await databases.listDocuments<Project>(
                 DATABASE_ID,
