@@ -11,7 +11,6 @@ type RequestType = InferRequestType<typeof client.api.tasks["$post"]>
 export const useCreateTask = () => {
     const queryClient = useQueryClient()
    
-
     const mutation = useMutation<
         ResponseType,
         Error,

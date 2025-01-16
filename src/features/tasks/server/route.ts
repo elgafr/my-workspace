@@ -11,6 +11,39 @@ import { createAdminClient } from "@/lib/appwrite";
 import { Project } from "@/features/projects/types";
 
 const app = new Hono()
+    .delete(
+        "/:taskId",
+        sessionMiddleware,
+        async (c) => {
+            const user = c.get("user")
+            const databases = c.get("databases")
+            const { taskId } = c.req.param()
+
+            const task = await databases.getDocument<Task>(
+                DATABASE_ID,
+                TASKS_ID,
+                taskId,
+            )
+
+            const member = await getMember({
+                databases,
+                workspaceId: task.workspaceId,
+                userId: user.$id,
+            })
+
+            if (!member) {
+                return c.json({ error: "Unauthorized" }, 401)
+            }
+
+            await databases.deleteDocument(
+                DATABASE_ID,
+                TASKS_ID,
+                taskId
+            )
+
+            return c.json({ data: { $id: task.$id } })
+        }
+    )
     .get(
         "/",
         sessionMiddleware,
@@ -46,7 +79,7 @@ const app = new Hono()
 
             })
 
-            if(!member) {
+            if (!member) {
                 return c.json({ error: "Unauthorized" }, 401)
             }
 
@@ -55,27 +88,27 @@ const app = new Hono()
                 Query.orderDesc("$createdAt"),
             ]
 
-            if(projectId) {
+            if (projectId) {
                 console.log("projectId ", projectId)
                 query.push(Query.equal("projectId", projectId))
             }
 
-            if(status) {
+            if (status) {
                 console.log("status ", status)
                 query.push(Query.equal("status", status))
             }
 
-            if(assigneeId) {
+            if (assigneeId) {
                 console.log("assigneeId ", assigneeId)
                 query.push(Query.equal("assigneeId", assigneeId))
             }
 
-            if(dueDate) {
+            if (dueDate) {
                 console.log("dueDate ", dueDate)
                 query.push(Query.equal("dueDate", dueDate))
             }
 
-            if(search) {
+            if (search) {
                 console.log("search ", search)
                 query.push(Query.search("name", search))
             }
@@ -85,10 +118,10 @@ const app = new Hono()
                 TASKS_ID,
                 query,
             )
-            
+
             const projectIds = tasks.documents.map((task) => task.projectId)
             const assigneeIds = tasks.documents.map((task) => task.assigneeId)
-        
+
             const projects = await databases.listDocuments<Project>(
                 DATABASE_ID,
                 PROJECTS_ID,
@@ -159,7 +192,7 @@ const app = new Hono()
                 userId: user.$id
             })
 
-            if(!member) {
+            if (!member) {
                 return c.json({ error: "Unauthorized" }, 401)
             }
 
@@ -176,8 +209,8 @@ const app = new Hono()
 
             const newPosition =
                 highestPositionTask.documents.length > 0
-                ? highestPositionTask.documents[0].position + 1000
-                : 1000
+                    ? highestPositionTask.documents[0].position + 1000
+                    : 1000
 
             const task = await databases.createDocument(
                 DATABASE_ID,
@@ -191,6 +224,57 @@ const app = new Hono()
                     dueDate,
                     assigneeId,
                     position: newPosition,
+                }
+            )
+
+            return c.json({ data: task })
+        }
+    )
+    .patch(
+        "/:taskId",
+        sessionMiddleware,
+        zValidator("json", createTaskSchema.partial()),
+        async (c) => {
+            const user = c.get("user")
+            const databases = c.get("databases")
+            const {
+                name,
+                status,
+                description,
+                projectId,
+                dueDate,
+                assigneeId
+            } = c.req.valid("json")
+
+            const { taskId } = c.req.param()
+
+            const existingTask = await databases.getDocument<Task>(
+                DATABASE_ID,
+                TASKS_ID,
+                taskId,
+            )
+
+            const member = await getMember({
+                databases,
+                workspaceId: existingTask.workspaceId,
+                userId: user.$id
+            })
+
+            if (!member) {
+                return c.json({ error: "Unauthorized" }, 401)
+            }
+
+            const task = await databases.updateDocument<Task>(
+                DATABASE_ID,
+                TASKS_ID,
+                taskId,
+                {
+                    name,
+                    status,
+                    projectId,
+                    dueDate,
+                    assigneeId,
+                    description,
                 }
             )
 
