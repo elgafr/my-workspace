@@ -38,7 +38,7 @@ jobs:
         uses: denoland/deployctl@v1
         with:
           project: "my-workspace"
-          entrypoint: "./server.cjs"
-          root: ".next/standalone"
+          entrypoint: "jsr:@deno/nextjs-start"
+          root: "."
           
           
