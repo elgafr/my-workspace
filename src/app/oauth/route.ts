@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
 
   cookies().set(AUTH_COOKIE, session.secret, {
     path: "/",
+    domain: ".elga.my.id", // Allows subdomains
     httpOnly: true,
     sameSite: "strict",
     secure: true,
