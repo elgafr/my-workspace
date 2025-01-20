@@ -29,7 +29,7 @@ jobs:
           node-version: lts/*
 
       - name: Install step
-        run: "rm src/app/oauth/route.ts && mv src/app/oauth/route.ts.bak src/app/oauth/route.ts && rm next.config.mjs && mv next.config.ts.bak next.config.ts && npm install -g bun && bun update --latest"
+        run: "rm next.config.mjs && mv next.config.js.bak next.config.js && npm install -g bun && bun install"
 
       - name: Build step
         run: "bun run build && (cp -r public .next/standalone/public; cp -r .next/static .next/standalone/.next/static; mv .next/standalone/server.js .next/standalone/server.cjs)"
