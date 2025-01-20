@@ -29,16 +29,16 @@ jobs:
           node-version: lts/*
 
       - name: Install step
-        run: "npm install -g bun && bun install"
+        run: "rm next.config.mjs && mv next.config.mjs.bak next.config.mjs && npm install -g bun && bun install"
 
       - name: Build step
-        run: "bun run build"
+        run: "bun run build && (cp -r public .next/standalone/public; cp -r .next/static .next/standalone/.next/static; mv .next/standalone/server.js .next/standalone/server.cjs)"
 
       - name: Upload to Deno Deploy
         uses: denoland/deployctl@v1
         with:
           project: "my-workspace"
-          entrypoint: "jsr:@deno/nextjs-start"
-          root: "."
+          entrypoint: "./server.cjs"
+          root: ".next/standalone"
           
           
