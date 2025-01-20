@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     path: "/",
     domain: ".elga.my.id", // Allows subdomains
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: "lax",
     secure: true,
   });
 
